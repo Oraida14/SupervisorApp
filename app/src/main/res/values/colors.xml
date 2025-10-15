@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="card_normal">#FFFFFF</color>         <!-- blanco -->
+    <color name="card_alert">#FFCDD2</color>          <!-- rojo claro -->
+    <color name="status_alert">#D32F2F</color>        <!-- rojo intenso -->
+    <color name="status_warning">#FFA000</color>      <!-- naranja -->
+    <color name="status_inactive">#BDBDBD</color>     <!-- gris -->
+    <color name="status_active">#4CAF50</color>       <!-- verde -->
+</resources>
