@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.jmas.supervisor.R;
-import com.jmas.supervisor.adapters.TabletsAdapter;
+import com.jmas.supervisor.adapters.TabletAdapter;
 import com.jmas.supervisor.models.Alert;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public class AlertsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private TabletsAdapter adapter;
+    private TabletAdapter adapter;
     private List<Alert> alertList = new ArrayList<>();
 
     @Override
@@ -26,7 +26,7 @@ public class AlertsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Inicializamos el adapter con la lista vacía
-        adapter = new TabletsAdapter(new ArrayList<>());
+        adapter = new TabletAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
         // Si quieres mostrar la vista vacía cuando no hay alertas:

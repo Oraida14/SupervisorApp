@@ -2,8 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permisos -->
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Permisos necesarios para Mapbox y ubicación -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+
+
+
+
+
 
     <application
         android:allowBackup="true"
@@ -14,6 +23,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SupervisorApp">
+
+        <!-- Token de acceso de Mapbox -->
+        <meta-data
+            android:name="com.mapbox.accessToken"
+            android:value="pk.eyJ1IjoiZnJlZGR5ZmllcnJvIiwiYSI6ImNtMzk2eHFtYzExbGcyam9tZG8yN3d2aXQifQ.Yx7HsOnTVplMFrFJXMRYSw" />
 
         <!-- MainActivity -->
         <activity
@@ -26,14 +40,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <!-- MapActivity -->
         <activity
             android:name=".activities.MapActivity"
             android:exported="false"
             android:label="Mapa de Tablets"
             android:theme="@style/Theme.SupervisorApp"/>
-
         <!-- AlertsActivity si la usas -->
         <activity
             android:name=".activities.AlertsActivity"
@@ -41,7 +53,5 @@
             android:label="Alertas"
             android:theme="@style/Theme.SupervisorApp"/>
         <activity android:name=".activities.TabletDetailActivity" />
-
     </application>
-
 </manifest>

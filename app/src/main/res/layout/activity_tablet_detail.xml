@@ -44,6 +44,11 @@
             android:textSize="16sp"
             android:layout_marginBottom="16dp"/>
 
+        <!-- Mapa de Mapbox -->
+        <com.mapbox.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginBottom="16dp" />
     </LinearLayout>
-
 </ScrollView>

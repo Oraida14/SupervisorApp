@@ -17,7 +17,7 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Encabezado -->
+        <!-- Encabezado con tabletId y estado -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,6 +43,7 @@
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
 
+        <!-- Estado de la tablet -->
         <TextView
             android:id="@+id/status"
             android:layout_width="wrap_content"
@@ -52,22 +53,35 @@
             android:textColor="@android:color/holo_green_dark"
             android:layout_marginBottom="4dp"/>
 
+        <!-- Última actualización -->
         <TextView
             android:id="@+id/lastUpdate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Última actualización: 2025-10-14 19:45"
+            android:text="Última actualización: 19:45"
             android:textSize="12sp"
             android:textColor="@android:color/darker_gray"
             android:layout_marginBottom="4dp"/>
 
+        <!-- Ubicación: calle exacta o coordenadas -->
         <TextView
             android:id="@+id/location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ubicación: 31.7051, -106.4731"
+            android:text="Ubicación: Calle X, Ciudad Y"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- Botón opcional para abrir mapa individual -->
+        <ImageButton
+            android:id="@+id/btnViewMap"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_map"
+            android:contentDescription="Ver en mapa"/>
 
     </LinearLayout>
 

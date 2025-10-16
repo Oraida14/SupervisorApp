@@ -2,29 +2,31 @@ package com.jmas.supervisor.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
-import android.widget.Toast;
-
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.snackbar.Snackbar;
-import com.jmas.supervisor.R;
-import com.jmas.supervisor.adapters.TabletsAdapter;
-import com.jmas.supervisor.models.Alert;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jmas.supervisor.adapters.TabletAdapter;
 import com.jmas.supervisor.models.Tablet;
 import com.jmas.supervisor.network.MqttClient;
+import com.jmas.supervisor.R; // ✅ este es el correcto
+
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements MqttClient.OnMessageReceivedListener {
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private RecyclerView recyclerView;
-    private TabletsAdapter adapter;
-    private List<Tablet> tabletsList = new ArrayList<>();
+    private TabletAdapter adapter;
+    private List<Tablet> tabletList = new ArrayList<>();
     private MqttClient mqttClient;
+
+    private FloatingActionButton fabMap, fabAlerts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,77 +35,56 @@ public class MainActivity extends AppCompatActivity implements MqttClient.OnMess
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new TabletsAdapter(tabletsList);
+        adapter = new TabletAdapter(tabletList);
         recyclerView.setAdapter(adapter);
 
-        // Click en tablet para abrir mapa
-        adapter.setOnTabletClickListener(tablet -> {
-            Intent intent = new Intent(this, MapActivity.class);
-            intent.putExtra("tabletId", tablet.getTabletId());
-            intent.putExtra("latitude", tablet.getLatitude());
-            intent.putExtra("longitude", tablet.getLongitude());
-            startActivity(intent);
-        });
+        fabMap = findViewById(R.id.fabMap);
+        fabAlerts = findViewById(R.id.fabAlerts);
 
-        // Inicializar cliente MQTT
+        fabMap.setOnClickListener(v -> openMap());
+        fabAlerts.setOnClickListener(v -> openAlerts());
+
         mqttClient = new MqttClient(this);
-        mqttClient.connect(this);
-    }
-
-    @Override
-    public void onLocationUpdate(Tablet tablet) {
-        runOnUiThread(() -> {
-            int index = findTabletIndex(tablet.getTabletId());
-            tablet.setLastUpdate(System.currentTimeMillis());
-            if (index >= 0) {
-                tabletsList.set(index, tablet);
-            } else {
-                tabletsList.add(tablet);
+        mqttClient.connect(new MqttClient.OnMessageReceivedListener() {
+            @Override
+            public void onLocationUpdate(Tablet tablet) {
+                runOnUiThread(() -> updateTabletList(tablet));
             }
-            adapter.notifyDataSetChanged();
-        });
-    }
 
-    @Override
-    public void onAlertReceived(Alert alert) {
-        runOnUiThread(() -> {
-            // Vibración corta
-            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-            if (vibrator != null) vibrator.vibrate(400);
-
-            // Mostrar alerta
-            Snackbar snackbar = Snackbar.make(recyclerView,
-                    "🚨 " + alert.getMessage() + " (Tablet: " + alert.getTabletId() + ")",
-                    Snackbar.LENGTH_LONG);
-            snackbar.setBackgroundTint(getResources().getColor(android.R.color.holo_red_dark));
-            snackbar.show();
-
-            // Actualizar estado de la tablet en la lista
-            for (Tablet tablet : tabletsList) {
-                if (tablet.getTabletId().equals(alert.getTabletId())) {
-                    tablet.setGpsEnabled(false);
-                    tablet.setStatus("⚠ " + alert.getMessage());
-                    break;
-                }
+            @Override
+            public void onAlertReceived(com.jmas.supervisor.models.Alert alert) {
+                // Aquí podrías actualizar RecyclerView si quieres mostrar alertas
+                Log.d(TAG, "Alerta: " + alert.getMessage());
             }
-            adapter.notifyDataSetChanged();
+
+            @Override
+            public void onConnectionChanged(boolean connected) {
+                Log.d(TAG, "MQTT conectado: " + connected);
+            }
         });
     }
 
-    @Override
-    public void onConnectionChanged(boolean connected) {
-        runOnUiThread(() -> {
-            String message = connected ? "✅ Conectado al servidor MQTT" : "❌ Desconectado del servidor MQTT";
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        });
-    }
-
-    private int findTabletIndex(String tabletId) {
-        for (int i = 0; i < tabletsList.size(); i++) {
-            if (tabletsList.get(i).getTabletId().equals(tabletId)) return i;
+    private void updateTabletList(Tablet tablet) {
+        boolean exists = false;
+        for (int i = 0; i < tabletList.size(); i++) {
+            if (tabletList.get(i).getTabletId().equals(tablet.getTabletId())) {
+                tabletList.set(i, tablet);
+                exists = true;
+                break;
+            }
         }
-        return -1;
+        if (!exists) tabletList.add(tablet);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void openMap() {
+        Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
+
+    private void openAlerts() {
+        Intent intent = new Intent(this, AlertsActivity.class);
+        startActivity(intent);
     }
 
     @Override

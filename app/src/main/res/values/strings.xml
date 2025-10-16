@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SupervisorApp</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoiZnJlZGR5ZmllcnJvIiwiYSI6ImNtMzk2eHFtYzExbGcyam9tZG8yN3d2aXQifQ.Yx7HsOnTVplMFrFJXMRYSw</string>
+
 </resources>

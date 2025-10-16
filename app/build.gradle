@@ -26,15 +26,6 @@ android {
     }
 }
 
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.mapbox.maps:android:11.2.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-
-}
 repositories {
     google()
     mavenCentral()
@@ -45,5 +36,22 @@ repositories {
             password = project.findProperty("MAPBOX_DOWNLOADS_TOKEN") ?: ""
         }
     }
+}
+
+dependencies {
+    // Android base
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    // Mapbox SDK principal (incluye anotaciones)
+    implementation 'com.mapbox.maps:android:11.4.0'
+
+    // MQTT (Paho)
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
+    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+
+    // Gson (para parsear JSON)
+    implementation 'com.google.code.gson:gson:2.10.1'
 }
 

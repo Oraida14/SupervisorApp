@@ -1,7 +1,7 @@
 package com.jmas.supervisor.adapters;
 
-
-
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,13 +13,13 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.jmas.supervisor.R;
 import com.jmas.supervisor.models.Tablet;
-
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletViewHolder> {
+public class TabletAdapter extends RecyclerView.Adapter<TabletAdapter.TabletViewHolder> {
 
     private List<Tablet> tablets;
     private OnTabletClickListener clickListener;
@@ -29,7 +29,7 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
         void onTabletClick(Tablet tablet);
     }
 
-    public TabletsAdapter(List<Tablet> tablets) {
+    public TabletAdapter(List<Tablet> tablets) {
         this.tablets = tablets;
     }
 
@@ -52,16 +52,22 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
         holder.tabletId.setText(tablet.getTabletId());
         holder.status.setText(tablet.getStatus());
 
-        // Formatear última actualización
+        // --- Última actualización ---
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String lastUpdate = sdf.format(new Date(tablet.getLastUpdate()));
         holder.lastUpdate.setText("Última actualización: " + lastUpdate);
 
-        // Formatear ubicación
-        holder.location.setText(String.format(Locale.getDefault(),
-                "Lat: %.6f, Lon: %.6f", tablet.getLatitude(), tablet.getLongitude()));
+        // --- Mostrar dirección o coordenadas ---
+        if (tablet.getAddress() != null && !tablet.getAddress().isEmpty()) {
+            holder.location.setText(tablet.getAddress());
+        } else {
+            holder.location.setText(String.format(Locale.getDefault(),
+                    "Lat: %.6f, Lon: %.6f", tablet.getLatitude(), tablet.getLongitude()));
+            // Lanzar hilo para obtener dirección si no la tiene
+            fetchAddressAsync(holder, tablet);
+        }
 
-        // Colores y parpadeo
+        // --- Colores y efectos ---
         int colorIndicator;
         int colorCard = ContextCompat.getColor(holder.itemView.getContext(), R.color.card_normal);
 
@@ -87,6 +93,13 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
         }
 
         holder.statusIndicator.setBackgroundColor(colorIndicator);
+
+        // --- Click para ver en mapa ---
+        holder.cardView.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onTabletClick(tablet);
+            }
+        });
     }
 
     @Override
@@ -107,12 +120,6 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
             location = itemView.findViewById(R.id.location);
             statusIndicator = itemView.findViewById(R.id.statusIndicator);
             cardView = itemView.findViewById(R.id.cardView);
-
-            cardView.setOnClickListener(v -> {
-                if (clickListener != null) {
-                    clickListener.onTabletClick(tablets.get(getAdapterPosition()));
-                }
-            });
         }
     }
 
@@ -120,7 +127,6 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
     private void startBlinking(View view, int color1, int color2) {
         final Runnable blinkRunnable = new Runnable() {
             boolean on = true;
-
             @Override
             public void run() {
                 view.setBackgroundColor(on ? color1 : color2);
@@ -144,7 +150,6 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
     private void startBlinkingCard(CardView view, int color1, int color2) {
         final Runnable blinkRunnable = new Runnable() {
             boolean on = true;
-
             @Override
             public void run() {
                 view.setCardBackgroundColor(on ? color1 : color2);
@@ -163,5 +168,23 @@ public class TabletsAdapter extends RecyclerView.Adapter<TabletsAdapter.TabletVi
             view.setTag(null);
             view.setCardBackgroundColor(ContextCompat.getColor(view.getContext(), R.color.card_normal));
         }
+    }
+
+    // --- Obtener dirección desde coordenadas ---
+    private void fetchAddressAsync(TabletViewHolder holder, Tablet tablet) {
+        new Thread(() -> {
+            try {
+                Geocoder geocoder = new Geocoder(holder.itemView.getContext(), Locale.getDefault());
+                List<Address> addresses = geocoder.getFromLocation(tablet.getLatitude(), tablet.getLongitude(), 1);
+                if (addresses != null && !addresses.isEmpty()) {
+                    String address = addresses.get(0).getAddressLine(0);
+                    tablet.setAddress(address);
+
+                    handler.post(() -> holder.location.setText(address));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }
